@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BUS AMAN: Budaya Sekolah Aman dan Nyaman</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+            touch-action: manipulation;
+            user-select: none;
+            /* Background Image */
+            background: url('https://i.imgur.com/K0kXZ2y.png') no-repeat center center fixed;
+            background-size: cover;
+        }
+        
+        /* Modern Glassmorphism */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-radius: 24px;
+        }
+
+        .glass-header {
+            background: transparent;
+            border-bottom: none;
+            box-shadow: none;
+            padding-top: 1rem;
+        }
+
+        /* TOMBOL HEADER */
+        .btn-header {
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            color: #1e293b;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .btn-header:hover {
+            background: rgba(255, 255, 255, 0.6);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .btn-header:active { transform: translateY(0); }
+
+        .font-display { font-family: 'Fredoka One', cursive; }
+        
+        .btn-game { 
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); 
+            box-shadow: 0 6px 0 rgba(0,0,0,0.25); 
+        }
+        .btn-game:active { 
+            transform: translateY(4px); 
+            box-shadow: 0 2px 0 rgba(0,0,0,0.2); 
+        }
+        
+        .btn-gradient-blue {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border: 2px solid rgba(255,255,255,0.4);
+        }
+        
+        .avatar-card.selected { 
+            border-color: #4ade80; 
+            background: rgba(220, 252, 231, 0.9);
+            transform: scale(1.1); 
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
+        }
+        
+        .avatar-card.taken {
+            opacity: 0.5;
+            filter: grayscale(100%);
+            cursor: not-allowed;
+            pointer-events: none;
+            border-color: #94a3b8;
+            position: relative;
+        }
+        .avatar-card.taken::after {
+            content: 'Dipilih';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        @keyframes bounce-in { 0% { transform: scale(0.8); opacity: 0; } 60% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); } }
+        .animate-pop { animation: bounce-in 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
+        
+        .crown-icon { animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.4); }
+
+        .text-stroke-black { 
+            -webkit-text-stroke: 1.5px black;
+            text-shadow: 3px 3px 0px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col items-center justify-center p-0 md:p-4 bg-black/20">
+
+    <!-- AUDIO PLAYER -->
+    <audio id="bgm" loop>
+        <source src="https://github.com/belajarituseru39-gif/bus-aman/raw/refs/heads/main/BUS%20AMAN%20Ceria.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- GAME CONTAINER -->
+    <div id="game-container" class="relative w-full max-w-7xl h-full md:h-[95vh] glass-panel md:rounded-3xl overflow-hidden flex flex-col transition-all duration-300">
+        
+        <header class="glass-header p-3 md:p-4 flex justify-between items-center z-50 relative shrink-0">
+            <!-- Left: Navigation -->
+            <div class="flex items-center gap-2 md:gap-4">
+                <button onclick="switchScreen('map')" id="btn-map-nav" class="hidden btn-header p-2 rounded-full">
+                    <i data-lucide="map" class="w-5 h-5 md:w-6 md:h-6"></i>
+                </button>
+                <div class="btn-header p-2 rounded-full hidden md:block">
+                    <i data-lucide="bus" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-display text-xl md:text-2xl text-slate-800 tracking-wide hidden sm:block drop-shadow-sm text-stroke-white" style="-webkit-text-stroke: 1px white;">BUS AMAN</h1>
+                    <div class="text-[10px] md:text-xs font-bold text-slate-700 uppercase tracking-wider bg-white/40 px-2 rounded backdrop-blur-sm" id="current-stage-text">Intro</div>
+                </div>
+            </div>
+
+            <!-- Center: Active Player Indicator -->
+            <div id="player-info" class="hidden absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 md:gap-3 glass-card px-4 py-2 !border-white/60 shadow-lg animate-pop z-50">
+                <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-slate-200 overflow-hidden border-2 border-white relative shadow-sm">
+                    <img id="header-avatar" src="" class="w-full h-full object-cover object-top absolute inset-0">
+                </div>
+                <div class="flex flex-col leading-none text-left">
+                    <span class="text-[8px] md:text-[10px] font-bold text-slate-500 uppercase tracking-wider">Giliran</span>
+                    <span id="header-name" class="font-display text-sm md:text-lg text-indigo-700 whitespace-nowrap max-w-[80px] md:max-w-[100px] truncate">Player</span>
+                </div>
+                <div class="h-6 md:h-8 w-px bg-slate-300 mx-1"></div>
+                <div class="flex items-center gap-1">
+                   <i data-lucide="star" class="w-4 h-4 md:w-5 md:h-5 text-yellow-500 fill-yellow-500 drop-shadow-sm"></i>
+                   <span id="score-display" class="font-display text-lg md:text-xl text-slate-800">0</span>
+                </div>
+                <div class="ml-2 bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-bold border border-blue-200" id="turn-counter-badge">1/3</div>
+            </div>
+
+            <!-- Right: Menu, Audio & Fullscreen -->
+            <div class="flex items-center gap-2 md:gap-3">
+                <button onclick="toggleAudio()" id="btn-audio" class="btn-header p-2 rounded-xl">
+                    <i data-lucide="music" class="w-5 h-5 md:w-6 md:h-6"></i>
+                </button>
+                <button onclick="toggleFullscreen()" class="btn-header p-2 rounded-xl hidden md:block">
+                    <i data-lucide="maximize" class="w-5 h-5 md:w-6 md:h-6"></i>
+                </button>
+                <button onclick="toggleScoreboard()" class="btn-header p-2 rounded-xl relative">
+                    <i data-lucide="trophy" class="w-5 h-5 md:w-6 md:h-6"></i>
+                    <span id="score-badge" class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full hidden shadow-sm">!</span>
+                </button>
+                <button onclick="toggleMenu()" class="btn-header p-2 rounded-xl bg-yellow-400/80 hover:bg-yellow-400 border-yellow-200 text-slate-900">
+                    <i data-lucide="menu" class="w-5 h-5 md:w-6 md:h-6"></i>
+                </button>
+            </div>
+        </header>
+
+        <div id="scoreboard-widget" class="absolute top-20 right-4 z-40 glass-card w-64 overflow-hidden hidden transition-all duration-300 origin-top-right">
+            <div class="bg-slate-100/80 p-3 border-b border-slate-200 flex justify-between items-center">
+                <h3 class="font-bold text-slate-700 flex items-center gap-2"><i data-lucide="list-ordered" class="w-4 h-4"></i> Klasemen</h3>
+                <button onclick="toggleScoreboard()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div id="scoreboard-list" class="max-h-64 overflow-y-auto p-2 space-y-1"></div>
+        </div>
+
+        <main id="main-content" class="flex-1 relative overflow-hidden">
+            
+            <!-- SCENE 0: INTRO -->
+            <div id="scene-intro" class="scene absolute inset-0 flex flex-col items-center justify-center animate-pop overflow-y-auto p-4 custom-scroll">
+                <div class="text-center mt-4 md:mt-8 mb-8 drop-shadow-2xl flex flex-col items-center">
+                    <img src="https://i.imgur.com/v5Wj90U.png" class="w-32 h-32 md:w-48 md:h-48 object-contain mb-4 animate-bounce drop-shadow-lg" alt="Logo Bus Aman">
+                    
+                    <h1 class="font-display text-6xl md:text-8xl text-white mb-6 drop-shadow-[0_6px_6px_rgba(0,0,0,0.6)] tracking-wide text-stroke-black">BUS AMAN</h1>
+                    
+                    <div class="inline-block bg-yellow-400/90 text-slate-900 font-bold px-6 py-3 rounded-2xl shadow-xl border-4 border-white/60 backdrop-blur-md max-w-4xl text-sm md:text-lg leading-relaxed text-center mx-4">
+                        Permainan BUS AMAN adalah media edukasi untuk memahami <br class="hidden md:block"> Permendikdasmen Nomor 06 Tahun 2026 tentang Budaya Sekolah Aman dan Nyaman
+                    </div>
+                </div>
+                
+                <div class="w-full max-w-4xl flex flex-col items-center mb-8">
+                    <div class="flex flex-col sm:flex-row gap-6 justify-center w-full mb-12">
+                        <button onclick="showMateri()" class="btn-game bg-white text-indigo-700 border-4 border-indigo-100 font-display text-xl md:text-2xl py-4 px-10 rounded-full shadow-2xl hover:bg-indigo-50 transition-transform hover:scale-105 flex items-center justify-center gap-3 w-full sm:w-auto">
+                            <i data-lucide="book-open" class="w-8 h-8 text-indigo-500"></i> MATERI
+                        </button>
+                        <button onclick="goToDifficulty()" class="btn-game btn-gradient-blue text-white font-display text-2xl md:text-3xl py-4 px-16 rounded-full shadow-2xl hover:brightness-110 animate-pulse border-b-8 border-blue-800 active:border-b-0 active:translate-y-2 flex items-center justify-center gap-3 w-full sm:w-auto">
+                            <i data-lucide="play-circle" class="w-8 h-8 fill-white/20"></i> MULAI!
+                        </button>
+                    </div>
+
+                    <div class="bg-white/90 px-6 py-2 rounded-full backdrop-blur-md shadow-lg border-2 border-white/60 flex flex-col md:flex-row items-center gap-2 md:gap-6 mt-auto">
+                        <div class="text-center md:text-left">
+                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Ide Permainan:</p>
+                            <p class="text-sm font-bold text-slate-800">Abdul Rahmat, S.Pd <span class="font-normal text-slate-600 hidden sm:inline">| SDN 011 Balikpapan Tengah</span></p>
+                            <p class="text-xs text-slate-600 sm:hidden">SDN 011 Balikpapan Tengah</p>
+                        </div>
+                        <div class="hidden md:block h-8 w-px bg-slate-300"></div>
+                        <div class="flex items-center gap-2 bg-green-100 px-3 py-1 rounded-full border border-green-200">
+                            <i data-lucide="phone" class="w-3 h-3 text-green-600"></i>
+                            <span class="text-xs font-bold text-green-700">081351767574</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCENE 0.0: DIFFICULTY -->
+            <div id="scene-difficulty" class="scene hidden absolute inset-0 flex flex-col items-center justify-center p-8">
+                <div class="glass-card p-10 max-w-4xl w-full text-center animate-slide relative border-4 border-indigo-300">
+                    <button onclick="switchScreen('intro')" class="absolute top-4 left-4 text-slate-400 hover:text-slate-600 bg-white/50 p-2 rounded-full hover:bg-white transition"><i data-lucide="arrow-left" class="w-8 h-8"></i></button>
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4 font-display">Pilih Tingkat Kesulitan</h2>
+                    <p class="text-lg text-slate-600 mb-8 font-medium">Sesuaikan dengan kelasmu agar permainan lebih seru!</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+                        <button onclick="selectDifficulty('rendah')" class="btn-game bg-green-50 border-4 border-green-300 hover:border-green-500 p-8 rounded-3xl flex flex-col items-center transition-all hover:scale-105 group">
+                            <i data-lucide="smile" class="w-16 h-16 text-green-500 mb-4 group-hover:animate-bounce"></i>
+                            <span class="font-display text-2xl md:text-3xl text-slate-700 mb-2">Kelas Rendah</span>
+                            <span class="font-bold text-green-700 bg-green-200 px-4 py-1 rounded-full text-sm">Kelas 1 - 3 SD</span>
+                        </button>
+                        <button onclick="selectDifficulty('tinggi')" class="btn-game bg-blue-50 border-4 border-blue-300 hover:border-blue-500 p-8 rounded-3xl flex flex-col items-center transition-all hover:scale-105 group">
+                            <i data-lucide="brain" class="w-16 h-16 text-blue-500 mb-4 group-hover:animate-pulse"></i>
+                            <span class="font-display text-2xl md:text-3xl text-slate-700 mb-2">Kelas Tinggi</span>
+                            <span class="font-bold text-blue-700 bg-blue-200 px-4 py-1 rounded-full text-sm">Kelas 4 - 6 SD</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCENE 0.1: PLAYER COUNT -->
+            <div id="scene-player-count" class="scene hidden absolute inset-0 flex flex-col items-center justify-center p-8">
+                <div class="glass-card p-10 max-w-4xl w-full text-center animate-slide relative">
+                    <button onclick="switchScreen('difficulty')" class="absolute top-4 left-4 text-slate-400 hover:text-slate-600 bg-white/50 p-2 rounded-full hover:bg-white transition"><i data-lucide="arrow-left" class="w-8 h-8"></i></button>
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-8 font-display">Pilih Jumlah Pemain</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                        <button onclick="selectPlayerCount(1)" class="btn-game bg-blue-50 border-4 border-blue-200 hover:border-blue-500 p-6 rounded-2xl flex flex-col items-center transition-all hover:scale-105 hover:-translate-y-2">
+                            <i data-lucide="user" class="w-12 h-12 md:w-16 md:h-16 text-blue-500 mb-2"></i>
+                            <span class="font-display text-xl md:text-2xl text-slate-700">1 Pemain</span>
+                        </button>
+                        <button onclick="selectPlayerCount(2)" class="btn-game bg-green-50 border-4 border-green-200 hover:border-green-500 p-6 rounded-2xl flex flex-col items-center transition-all hover:scale-105 hover:-translate-y-2">
+                            <div class="flex gap-1"><i data-lucide="user" class="w-10 h-10 text-green-500 mb-2"></i><i data-lucide="user" class="w-10 h-10 text-green-500 mb-2"></i></div>
+                            <span class="font-display text-xl md:text-2xl text-slate-700">2 Pemain</span>
+                        </button>
+                        <button onclick="selectPlayerCount(3)" class="btn-game bg-orange-50 border-4 border-orange-200 hover:border-orange-500 p-6 rounded-2xl flex flex-col items-center transition-all hover:scale-105 hover:-translate-y-2">
+                            <div class="flex gap-1 mb-2">
+                                <i data-lucide="user" class="w-8 h-8 text-orange-500"></i><i data-lucide="user" class="w-8 h-8 text-orange-500"></i><i data-lucide="user" class="w-8 h-8 text-orange-500"></i>
+                            </div>
+                            <span class="font-display text-xl md:text-2xl text-slate-700">3 Pemain</span>
+                        </button>
+                        <button onclick="selectPlayerCount(4)" class="btn-game bg-purple-50 border-4 border-purple-200 hover:border-purple-500 p-6 rounded-2xl flex flex-col items-center transition-all hover:scale-105 hover:-translate-y-2">
+                            <div class="grid grid-cols-2 gap-1 mb-2">
+                                <i data-lucide="user" class="w-8 h-8 text-purple-500"></i><i data-lucide="user" class="w-8 h-8 text-purple-500"></i>
+                                <i data-lucide="user" class="w-8 h-8 text-purple-500"></i><i data-lucide="user" class="w-8 h-8 text-purple-500"></i>
+                            </div>
+                            <span class="font-display text-xl md:text-2xl text-slate-700">4 Pemain</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCENE 0.2: CHARACTER SELECTION -->
+            <div id="scene-char-select" class="scene hidden absolute inset-0 flex flex-col items-center justify-center p-4 md:p-8">
+                <div class="glass-card p-6 md:p-8 max-w-5xl w-full animate-slide flex flex-col h-full md:h-auto">
+                    <div class="text-center mb-4 md:mb-6">
+                        <div class="inline-block bg-indigo-100/80 text-indigo-700 px-4 py-1 rounded-full font-bold text-sm mb-2 uppercase tracking-wide backdrop-blur-sm">Persiapan</div>
+                        <h2 id="char-select-title" class="text-2xl md:text-3xl font-bold text-slate-800">Pemain 1: Pilih Karaktermu</h2>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4 mb-8 overflow-y-auto custom-scroll" id="avatar-grid"></div>
+                    <div class="mt-auto text-center text-slate-500 text-sm italic bg-white/50 py-2 rounded-xl">Klik pada karakter untuk memilih</div>
+                </div>
+            </div>
+
+            <!-- SCENE MAP -->
+            <div id="scene-map" class="scene hidden absolute inset-0 flex flex-col items-center justify-center p-4">
+                <h2 class="font-display text-2xl md:text-4xl text-slate-800 mb-4 glass-card px-8 py-3 rounded-full shadow-lg flex items-center gap-3">
+                    <i data-lucide="map" class="text-green-600 w-8 h-8"></i> PETA PERJALANAN
+                </h2>
+                <div class="relative w-full max-w-5xl aspect-[16/9] glass-card overflow-hidden !p-0 shadow-2xl !border-4 !border-white">
+                    <img src="https://i.imgur.com/wccdXgI.png" alt="Peta" class="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity duration-500">
+                    
+                    <button id="btn-map-1" onclick="enterLevel(1)" disabled class="absolute top-[50%] left-[10%] -translate-y-1/2 group transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:grayscale"><div class="relative"><div class="w-16 h-16 md:w-24 md:h-24 bg-red-500 border-4 border-white rounded-full flex flex-col items-center justify-center shadow-xl z-10 relative"><span class="font-display text-2xl md:text-3xl text-white">1</span></div><div class="absolute -bottom-8 md:-bottom-10 left-1/2 -translate-x-1/2 bg-white px-2 py-1 md:px-3 md:py-1 rounded-lg border-2 border-red-500 whitespace-nowrap shadow-md z-20"><span id="map-label-1" class="font-bold text-slate-700 text-xs md:text-sm">Nilai & Asas</span></div><div id="bus-pos-1" class="hidden absolute -top-12 md:-top-16 left-1/2 -translate-x-1/2 animate-bounce z-30"><i data-lucide="bus" class="w-12 h-12 md:w-16 md:h-16 text-yellow-500 fill-yellow-400 drop-shadow-lg"></i></div></div></button>
+                    <button id="btn-map-2" onclick="enterLevel(2)" disabled class="absolute top-[30%] left-[35%] -translate-y-1/2 group transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:grayscale"><div class="relative"><div class="w-16 h-16 md:w-24 md:h-24 bg-blue-500 border-4 border-white rounded-full flex flex-col items-center justify-center shadow-xl z-10 relative"><span class="font-display text-2xl md:text-3xl text-white">2</span></div><div class="absolute -bottom-8 md:-bottom-10 left-1/2 -translate-x-1/2 bg-white px-2 py-1 md:px-3 md:py-1 rounded-lg border-2 border-blue-500 whitespace-nowrap shadow-md z-20"><span id="map-label-2" class="font-bold text-slate-700 text-xs md:text-sm">Ruang Aman</span></div><div id="bus-pos-2" class="hidden absolute -top-12 md:-top-16 left-1/2 -translate-x-1/2 animate-bounce z-30"><i data-lucide="bus" class="w-12 h-12 md:w-16 md:h-16 text-yellow-500 fill-yellow-400 drop-shadow-lg"></i></div></div></button>
+                    <button id="btn-map-3" onclick="enterLevel(3)" disabled class="absolute top-[65%] left-[60%] -translate-y-1/2 group transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:grayscale"><div class="relative"><div class="w-16 h-16 md:w-24 md:h-24 bg-orange-500 border-4 border-white rounded-full flex flex-col items-center justify-center shadow-xl z-10 relative"><span class="font-display text-2xl md:text-3xl text-white">3</span></div> <div class="absolute -bottom-8 md:-bottom-10 left-1/2 -translate-x-1/2 bg-white px-2 py-1 md:px-3 md:py-1 rounded-lg border-2 border-orange-500 whitespace-nowrap shadow-md z-20"><span id="map-label-3" class="font-bold text-slate-700 text-xs md:text-sm">Ambil Peran</span></div><div id="bus-pos-3" class="hidden absolute -top-12 md:-top-16 left-1/2 -translate-x-1/2 animate-bounce z-30"><i data-lucide="bus" class="w-12 h-12 md:w-16 md:h-16 text-yellow-500 fill-yellow-400 drop-shadow-lg"></i></div></div></button>
+                    <button id="btn-map-4" onclick="enterLevel(4)" disabled class="absolute top-[50%] left-[85%] -translate-y-1/2 group transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:grayscale"><div class="relative"><div class="w-16 h-16 md:w-24 md:h-24 bg-green-500 border-4 border-white rounded-full flex flex-col items-center justify-center shadow-xl z-10 relative"><span class="font-display text-2xl md:text-3xl text-white">4</span></div><div class="absolute -bottom-8 md:-bottom-10 left-1/2 -translate-x-1/2 bg-white px-2 py-1 md:px-3 md:py-1 rounded-lg border-2 border-green-500 whitespace-nowrap shadow-md z-20"><span id="map-label-4" class="font-bold text-slate-700 text-xs md:text-sm">Tumbuh Bersama</span></div><div id="bus-pos-4" class="hidden absolute -top-12 md:-top-16 left-1/2 -translate-x-1/2 animate-bounce z-30"><i data-lucide="bus" class="w-12 h-12 md:w-16 md:h-16 text-yellow-500 fill-yellow-400 drop-shadow-lg"></i></div></div></button>
+                </div>
+                <div class="mt-6 glass-card px-8 py-3 rounded-full text-yellow-900 font-bold animate-pulse text-center shadow-lg bg-yellow-100/90 border-yellow-200">
+                    <i data-lucide="info" class="inline w-5 h-5 mr-1 align-text-bottom"></i> 
+                    <span id="map-status-text">Klik tombol Halte yang ada bus-nya untuk masuk!</span>
+                </div>
+            </div>
+
+            <!-- SCENE 1: HALTE 1 (Nilai & Asas) -->
+            <div id="scene-halte1" class="scene hidden absolute inset-0 flex flex-col p-6 md:p-8 overflow-y-auto">
+                <div class="flex-1 flex flex-col items-center justify-center max-w-5xl mx-auto w-full my-auto">
+                    <div class="w-full glass-card p-6 md:p-10 mb-8 animate-slide relative border-l-8 !border-l-blue-500">
+                        <span class="absolute -top-4 -left-4 bg-blue-500 text-white px-4 py-1 rounded-full font-bold shadow-md uppercase tracking-wider text-sm">Kasus</span>
+                        <p id="h1-question-text" class="text-xl md:text-3xl font-medium text-slate-800 leading-relaxed text-center"></p>
+                    </div>
+                    <div id="h1-step1" class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8 w-full">
+                        <button onclick="handleH1Step1('S')" class="btn-game bg-green-100 border-4 border-green-500 p-6 md:p-8 rounded-3xl flex flex-col items-center hover:bg-green-200 transition-colors shadow-lg"><i data-lucide="check-circle" class="w-16 h-16 md:w-20 md:h-20 text-green-600 mb-4"></i><span class="text-2xl md:text-3xl font-bold text-green-800">SESUAI</span></button>
+                        <button onclick="handleH1Step1('TS')" class="btn-game bg-red-100 border-4 border-red-500 p-6 md:p-8 rounded-3xl flex flex-col items-center hover:bg-red-200 transition-colors shadow-lg"><i data-lucide="x-circle" class="w-16 h-16 md:w-20 md:h-20 text-red-600 mb-4"></i><span class="text-2xl md:text-3xl font-bold text-red-800">TIDAK SESUAI</span></button>
+                    </div>
+                    <div id="h1-step2" class="hidden w-full text-center">
+                        <h3 class="text-xl md:text-2xl font-bold text-slate-700 mb-6 bg-white/80 inline-block px-6 py-2 rounded-full glass-card">Pilih Label yang Tepat:</h3>
+                        <div id="h1-asas-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCENE 2: HALTE 2 -->
+            <div id="scene-halte2" class="scene hidden absolute inset-0 flex flex-col p-6 overflow-y-auto">
+                <div class="flex-1 flex flex-col items-center justify-center max-w-6xl mx-auto w-full my-auto">
+                    <div id="h2-card-display" class="w-full max-w-2xl glass-card p-8 text-center min-h-[200px] flex items-center justify-center animate-pop z-20 mb-8 relative !border-4 !border-slate-300">
+                        <span class="absolute -top-4 -left-4 bg-purple-500 text-white px-4 py-1 rounded-full font-bold shadow-md uppercase tracking-wider text-sm">Kartu Situasi</span>
+                        <p id="h2-card-text" class="text-2xl md:text-3xl font-bold text-slate-800">Loading...</p>
+                    </div>
+                    <div id="h2-step1" class="w-full">
+                        <h3 class="text-xl md:text-2xl font-bold text-slate-600 text-center mb-6 bg-white/70 inline-block px-4 py-1 rounded-full backdrop-blur-sm">Langkah 1: Masukkan ke Ruang yang Tepat</h3>
+                        <div id="h2-category-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+                    <div id="h2-step2" class="hidden w-full">
+                        <h3 class="text-xl md:text-2xl font-bold text-slate-600 text-center mb-6 bg-white/70 inline-block px-4 py-1 rounded-full backdrop-blur-sm">Langkah 2: Tentukan Keamanannya</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-4xl mx-auto">
+                            <button onclick="handleH2Safety('A')" class="btn-game bg-green-100 border-4 border-green-500 p-6 md:p-8 rounded-3xl flex flex-col items-center hover:bg-green-200"><i data-lucide="shield-check" class="w-16 h-16 md:w-20 md:h-20 text-green-600 mb-4"></i><span class="text-2xl md:text-3xl font-bold text-green-800">AMAN</span></button>
+                            <button onclick="handleH2Safety('TA')" class="btn-game bg-red-100 border-4 border-red-500 p-6 md:p-8 rounded-3xl flex flex-col items-center hover:bg-red-200"><i data-lucide="alert-triangle" class="w-16 h-16 md:w-20 md:h-20 text-red-600 mb-4"></i><span class="text-2xl md:text-3xl font-bold text-red-800">TIDAK AMAN</span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="scene-halte3" class="scene hidden absolute inset-0 flex flex-col p-6 md:p-8 overflow-y-auto">
+                <div id="h3-role-select" class="flex flex-col items-center justify-center min-h-full">
+                    <h2 class="text-2xl md:text-3xl font-bold text-slate-700 mb-8 text-center bg-white/80 glass-card px-8 py-3">Pilih Peranmu Hari Ini:</h2>
+                    <div id="h3-role-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-5xl">
+                        <!-- Injected dynamically -->
+                    </div>
+                </div>
+                <div id="h3-gameplay" class="hidden min-h-full flex flex-col items-center justify-center">
+                    <div class="w-full max-w-4xl glass-card p-6 md:p-8 mb-8 relative border-l-8 !border-l-red-500">
+                        <div class="absolute -top-3 -right-3 bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-bold border border-red-200" id="h3-counter">1/1</div>
+                        <h3 class="text-red-500 font-bold mb-2 flex items-center gap-2 uppercase tracking-wide"><i data-lucide="alert-circle"></i> Masalah</h3>
+                        <p id="h3-problem-text" class="text-xl md:text-2xl font-medium text-slate-800 leading-relaxed"></p>
+                    </div>
+                    <h4 class="text-lg md:text-xl font-bold text-slate-600 mb-4 bg-orange-100/90 px-6 py-2 rounded-full shadow-md backdrop-blur-sm">Pilih Kartu Aksi Terbaik:</h4>
+                    <div id="h3-options-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-5xl"></div>
+                </div>
+            </div>
+
+            <!-- SCENE 4: HALTE 4 (Collection) -->
+            <div id="scene-halte4" class="scene hidden absolute inset-0 flex flex-col p-4 md:p-6 overflow-y-auto">
+                <div class="w-full max-w-5xl mx-auto glass-card p-6 mb-6 relative border-t-8 !border-t-indigo-500">
+                    <span class="absolute top-4 right-4 bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full text-xs font-bold shadow-sm">Kasus <span id="h4-counter">1</span></span>
+                    <div class="flex items-center gap-4 mb-2">
+                         <div class="bg-indigo-500 text-white p-2 rounded-lg shadow-md"><i data-lucide="search" class="w-6 h-6"></i></div>
+                         <h2 class="text-indigo-800 font-bold text-lg uppercase">Tanda Awal</h2>
+                    </div>
+                    <p id="h4-problem-text" class="text-2xl md:text-3xl font-display text-slate-800 text-center py-4"></p>
+                </div>
+                <div class="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="glass-card p-4 flex flex-col h-full !border-t-4 !border-t-blue-500">
+                        <div class="flex items-center gap-2 mb-4 text-blue-700 font-bold"><i data-lucide="heart-handshake"></i> <span id="h4-header-k">1. Lindungi Korban</span></div>
+                        <div class="space-y-2 max-h-48 overflow-y-auto custom-scroll mb-2 flex-1" id="h4-list-korban"></div>
+                        <div id="slot-korban" class="mt-auto p-3 bg-white/50 border-2 border-dashed border-blue-300 rounded-xl min-h-[50px] flex items-center justify-center text-slate-500 text-xs md:text-sm text-center font-medium">Pilih tindakan</div>
+                    </div>
+                    <div class="glass-card p-4 flex flex-col h-full !border-t-4 !border-t-orange-500">
+                        <div class="flex items-center gap-2 mb-4 text-orange-700 font-bold"><i data-lucide="users"></i> <span id="h4-header-p">2. Bimbing Pelaku</span></div>
+                        <div class="space-y-2 max-h-48 overflow-y-auto custom-scroll mb-2 flex-1" id="h4-list-pelaku"></div>
+                        <div id="slot-pelaku" class="mt-auto p-3 bg-white/50 border-2 border-dashed border-orange-300 rounded-xl min-h-[50px] flex items-center justify-center text-slate-500 text-xs md:text-sm text-center font-medium">Pilih tindakan</div>
+                    </div>
+                    <div class="glass-card p-4 flex flex-col h-full !border-t-4 !border-t-green-500">
+                        <div class="flex items-center gap-2 mb-4 text-green-700 font-bold"><i data-lucide="sprout"></i> <span id="h4-header-l">3. Pulihkan Lingkungan</span></div>
+                        <div class="space-y-2 max-h-48 overflow-y-auto custom-scroll mb-2 flex-1" id="h4-list-lingkungan"></div>
+                        <div id="slot-lingkungan" class="mt-auto p-3 bg-white/50 border-2 border-dashed border-green-300 rounded-xl min-h-[50px] flex items-center justify-center text-slate-500 text-xs md:text-sm text-center font-medium">Pilih tindakan</div>
+                    </div>
+                </div>
+                <div class="mt-auto text-center pb-8">
+                    <button id="btn-check-h4" onclick="checkH4Answer()" class="btn-game bg-indigo-600 text-white font-bold text-xl md:text-2xl py-3 px-12 rounded-full shadow-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105 border-b-4 border-indigo-800 active:border-b-0 active:translate-y-1">CEK SOLUSI</button>
+                </div>
+            </div>
+
+            <!-- SCENE END: FINISH -->
+            <div id="scene-finish" class="scene hidden absolute inset-0 flex flex-col items-center justify-center animate-pop overflow-y-auto p-8">
+                <i data-lucide="trophy" class="w-24 h-24 md:w-32 md:h-32 text-yellow-400 mb-4 crown-icon filter drop-shadow-[0_0_15px_rgba(250,204,21,0.6)]"></i>
+                <h1 class="font-display text-4xl md:text-6xl text-white mb-8 text-center drop-shadow-md text-stroke-black" style="text-shadow: 0 4px 0 #000;">PERJALANAN SELESAI!</h1>
+                
+                <div id="leaderboard" class="w-full max-w-2xl grid gap-4 mb-8"></div>
+
+                <div class="glass-card p-8 text-center border-4 border-yellow-400 max-w-xl w-full relative overflow-hidden bg-white/95">
+                    <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-yellow-300 via-yellow-500 to-yellow-300"></div>
+                    <div class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">Pemenang Utama</div>
+                    <div class="text-2xl text-slate-500 font-bold uppercase mb-1">Gelar Sahabat Hebat</div>
+                    <div id="winner-name" class="font-display text-4xl md:text-5xl text-indigo-600 mb-4 drop-shadow-sm">Nama Pemenang</div>
+                    <p class="text-slate-600 italic">"Sekolah aman dimulai dari kita!"</p>
+                </div>
+
+                <button onclick="location.reload()" class="mt-12 bg-slate-800 text-white px-10 py-4 rounded-2xl font-bold hover:bg-slate-700 text-xl shadow-lg transition-transform hover:-translate-y-1">Main Lagi</button>
+            </div>
+
+            <!-- MODAL FEEDBACK -->
+            <div id="modal-feedback" class="hidden absolute inset-0 bg-black/60 z-[60] flex items-center justify-center backdrop-blur-sm p-4">
+                <div class="glass-card p-8 max-w-md w-full text-center animate-pop border-4 border-white/80 relative bg-white/95">
+                    <div id="modal-icon" class="mx-auto mb-4"></div>
+                    <h2 id="modal-title" class="text-3xl font-display mb-2"></h2>
+                    <p id="modal-message" class="text-lg text-slate-600 mb-8 leading-relaxed"></p>
+                    <button onclick="closeModal()" class="btn-game bg-slate-800 text-white text-xl font-bold py-3 px-8 rounded-xl w-full hover:bg-slate-700 transition-colors shadow-lg">LANJUT</button>
+                </div>
+            </div>
+
+            <!-- MODAL INSTRUCTION -->
+            <div id="modal-instruction" class="hidden absolute inset-0 bg-yellow-500/80 z-[55] flex items-center justify-center backdrop-blur-md p-4">
+                <div class="glass-card p-6 md:p-10 max-w-3xl w-full text-center animate-pop border-8 border-yellow-400 relative overflow-hidden bg-white/95">
+                    <h2 id="instr-title" class="text-3xl md:text-4xl font-display text-slate-800 mb-6">CARA BERMAIN</h2>
+                    <div class="flex flex-col md:flex-row items-center justify-center gap-6 mb-8 text-left bg-yellow-50 p-6 rounded-2xl border-2 border-yellow-200">
+                        <div id="instr-icon" class="bg-white p-4 rounded-full border-2 border-slate-200 shadow-sm shrink-0"></div>
+                        <div><p id="instr-text" class="text-lg md:text-2xl text-slate-700 font-medium leading-relaxed"></p></div>
+                    </div>
+                    <button onclick="closeInstruction()" class="btn-game bg-green-500 text-white font-display text-2xl md:text-3xl py-4 px-12 rounded-full shadow-lg hover:bg-green-600 transition-transform hover:scale-105 border-b-4 border-green-700 active:border-b-0 active:translate-y-1">SIAP MAIN!</button>
+                </div>
+            </div>
+
+            <!-- MODAL MENU -->
+            <div id="modal-menu" class="hidden absolute inset-0 bg-black/60 z-[70] flex items-center justify-center backdrop-blur-sm p-4">
+                <div class="glass-card p-8 max-w-sm w-full animate-pop border-4 border-yellow-400 flex flex-col gap-4 bg-white/95">
+                    <h2 class="text-3xl font-display text-center text-slate-800 mb-2">MENU</h2>
+                    <button onclick="menuAction('home')" class="btn-game bg-red-100 text-red-700 font-bold py-4 rounded-xl border-2 border-red-300 flex items-center justify-center gap-2 hover:bg-red-200"><i data-lucide="home"></i> Menu Utama</button>
+                    <button onclick="menuAction('materi')" class="btn-game bg-green-100 text-green-700 font-bold py-4 rounded-xl border-2 border-green-300 flex items-center justify-center gap-2 hover:bg-green-200"><i data-lucide="book-open"></i> Buka Materi</button>
+                    <button onclick="menuAction('map')" class="btn-game bg-sky-100 text-sky-700 font-bold py-4 rounded-xl border-2 border-sky-300 flex items-center justify-center gap-2 hover:bg-sky-200"><i data-lucide="map"></i> Lihat Peta</button>
+                    <button onclick="toggleMenu()" class="mt-4 bg-slate-800 text-white font-bold py-3 rounded-xl hover:bg-slate-700 shadow-lg">Tutup</button>
+                </div>
+            </div>
+
+            <!-- MODAL MATERI -->
+            <div id="modal-materi" class="hidden absolute inset-0 bg-black/80 z-[80] flex items-center justify-center backdrop-blur-md p-4">
+                <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl animate-slide relative border-8 border-indigo-500 overflow-hidden">
+                    <!-- Header -->
+                    <div class="bg-indigo-600 p-6 flex justify-between items-center shadow-md z-10">
+                        <h2 class="text-2xl md:text-3xl font-display text-white flex items-center gap-3">
+                            <i data-lucide="book" class="w-8 h-8"></i>
+                            Buku Catatan
+                        </h2>
+                        <button onclick="closeMateri()" class="bg-indigo-800 hover:bg-indigo-900 text-white p-2 rounded-full transition"><i data-lucide="x" class="w-6 h-6"></i></button>
+                    </div>
+                    
+                    <!-- Content Scrollable -->
+                    <div id="materi-content-container" class="p-6 md:p-8 overflow-y-auto bg-slate-50 text-slate-800 leading-relaxed custom-scroll">
+                        <!-- Injected dynamically -->
+                    </div>
+                    
+                    <div class="p-4 bg-white border-t border-slate-200 text-center">
+                        <button onclick="closeMateri()" class="bg-indigo-600 text-white font-bold py-3 px-12 rounded-xl hover:bg-indigo-700 w-full md:w-auto shadow-lg transition-transform active:scale-95">Tutup & Main</button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- AUDIO SYSTEM -->
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator(); const gainNode = audioCtx.createGain();
+            osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+            if (type === 'correct') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1046.5, audioCtx.currentTime + 0.1); 
+                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5); osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3); osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'click') {
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(300, audioCtx.currentTime); gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'win') {
+                [523.25, 659.25, 783.99].forEach((freq, i) => { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.type = 'triangle'; o.frequency.value = freq; g.gain.setValueAtTime(0.2, audioCtx.currentTime + (i*0.1)); g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.5 + (i*0.1)); o.start(audioCtx.currentTime + (i*0.1)); o.stop(audioCtx.currentTime + 2.0); });
+            }
+        }
+
+        // BGM Control
+        const bgm = document.getElementById('bgm');
+        let isMuted = true; 
+
+        function toggleAudio() {
+            isMuted = !isMuted;
+            if(!isMuted) {
+                bgm.play().catch(e => console.log("Audio play failed", e));
+            } else {
+                bgm.pause();
+            }
+        }
+
+        // Fullscreen Toggle
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+    </script>
+
+    <!-- GAME LOGIC -->
+    <script>
+        const avatars = [
+            { name: "Aman", img: "https://i.imgur.com/tCcRw6n.png" },
+            { name: "Niana", img: "https://i.imgur.com/Cp4kbGN.png" },
+            { name: "Raka", img: "https://i.imgur.com/5Cbgb3W.png" },
+            { name: "Safa", img: "https://i.imgur.com/YIo3hQP.png" },
+            { name: "Danu", img: "https://i.imgur.com/cCmw5AA.png" },
+            { name: "Kirana", img: "https://i.imgur.com/v26U632.png" },
+            { name: "Hadi", img: "https://i.imgur.com/tRhQ9Oo.png" },
+            { name: "Badai", img: "https://i.imgur.com/LoRzqEX.png" },
+            { name: "Lestari", img: "https://i.imgur.com/qISRpLr.png" },
+            { name: "Rama", img: "https://i.imgur.com/3ycLzKd.png" }
+        ];
+        
+        const gameData = {
+            rendah: { // Untuk Kelas 1-3 SD
+                mapLabels: ["Sikap Baik", "Tempat Aman", "Pilih Peran", "Cari Solusi"],
+                h1: {
+                    asasPool: ["KASIH SAYANG", "KERJA SAMA", "ADIL", "RUKUN", "TANGGUNG JAWAB"],
+                    q: [
+                        { q: "Temanmu jatuh saat lari. Kamu malah menertawakannya.", key: "TS", asas: "KASIH SAYANG" },
+                        { q: "Kamu meminjamkan pensil kepada teman sebangku yang lupa membawa.", key: "S", asas: "KASIH SAYANG" },
+                        { q: "Bermain bola bersama-sama tanpa pilih-pilih teman laki-laki atau perempuan.", key: "S", asas: "ADIL" },
+                        { q: "Ikut piket membersihkan kelas bersama-sama teman.", key: "S", asas: "KERJA SAMA" },
+                        { q: "Mengejek teman yang belum lancar membaca di depan kelas.", key: "TS", asas: "RUKUN" },
+                        { q: "Berani meminta maaf karena tidak sengaja merusak mainan teman.", key: "S", asas: "TANGGUNG JAWAB" }
+                    ]
+                },
+                h2: {
+                    categories: [
+                        { id: "AGAMA", label: "AGAMA/IBADAH", icon: "moon", color: "purple" },
+                        { id: "FISIK", label: "FISIK/BANGUNAN", icon: "brick-wall", color: "orange" },
+                        { id: "HATI", label: "HATI/PERASAAN", icon: "heart", color: "pink" },
+                        { id: "INTERNET", label: "HP/INTERNET", icon: "smartphone", color: "blue" }
+                    ],
+                    cards: [
+                        { text: "Teman diejek karena cara doanya berbeda.", type: "TA", cat: "AGAMA" },
+                        { text: "Ada paku tajam yang menonjol di kursi kelas.", type: "TA", cat: "FISIK" },
+                        { text: "Teman menangis karena tasnya disembunyikan.", type: "TA", cat: "HATI" },
+                        { text: "Nonton video lucu di HP bersama teman.", type: "A", cat: "INTERNET" },
+                        { text: "Mengejek teman pakai foto lucu di grup WA.", type: "TA", cat: "INTERNET" },
+                        { text: "Halaman sekolah disapu agar tidak licin.", type: "A", cat: "FISIK" },
+                        { text: "Guru memuji murid yang rajin dan berbuat baik.", type: "A", cat: "HATI" },
+                        { text: "Sekolah punya tempat berdoa yang bersih.", type: "A", cat: "AGAMA" }
+                    ]
+                },
+                h3: {
+                    roles: [
+                        { id: "MURID", label: "MURID", icon: "user", color: "blue" },
+                        { id: "GURU", label: "GURU", icon: "graduation-cap", color: "green" },
+                        { id: "KEPSEK", label: "KEPALA SEKOLAH", icon: "building-2", color: "purple" },
+                        { id: "PETUGAS", label: "PETUGAS SEKOLAH", icon: "shield", color: "orange" }
+                    ],
+                    q: [
+                        { role: "MURID", problem: "Temanmu didorong sampai jatuh di lapangan.", solution: "Bantu bangun dan lapor ke guru." },
+                        { role: "GURU", problem: "Dua anak rebutan mainan di kelas.", solution: "Pisahkan dan ajak main sama-sama." },
+                        { role: "KEPSEK", problem: "Banyak sampah jajan di lapangan.", solution: "Sediakan banyak tempat sampah baru." },
+                        { role: "PETUGAS", problem: "Lantai depan kelas basah kena hujan.", solution: "Segera pel agar tidak ada yang jatuh." },
+                        { role: "MURID", problem: "Teman menangis karena pensilnya hilang.", solution: "Hibur dan bantu mencarinya." },
+                        { role: "GURU", problem: "Ada anak yang selalu diam menyendiri.", solution: "Ajak bicara pelan-pelan dan temani." }
+                    ]
+                },
+                h4: {
+                    headers: ["1. Hibur Teman", "2. Nasihati Teman", "3. Berbaikan Bersama"],
+                    problems: ["Temanmu menangis sendirian", "Buku gambar teman dicoret-coret", "Teman marah dan melempar pensil"],
+                    korban: ["Tanya kenapa sedih dan beri tisu", "Pinjamkan penghapus", "Ajak dia duduk agar tenang"],
+                    pelaku: ["Beri tahu perbuatannya salah", "Minta dia hapus coretannya", "Bantu dia agar bisa sabar"],
+                    lingkungan: ["Ajak main sama-sama lagi", "Bantu rapikan barang teman", "Berjabat tangan dan senyum"]
+                }
+            },
+            tinggi: { // Untuk Kelas 4-6 SD
+                mapLabels: ["Nilai & Asas", "Ruang Aman", "Ambil Peran", "Tumbuh Bersama"],
+                h1: {
+                    asasPool: ["HUMANIS", "INKLUSIF", "PARTISIPATIF", "HARMONIS", "KESETARAAN GENDER", "NONDISKRIMINATIF"],
+                    q: [
+                        { q: "Murid berkebutuhan khusus tidak diajak kerja kelompok karena dianggap merepotkan.", key: "TS", asas: "INKLUSIF" },
+                        { q: "Tugas memimpin upacara hanya diberikan ke laki-laki, padahal perempuan juga mampu.", key: "TS", asas: "KESETARAAN GENDER" },
+                        { q: "OSIS dilibatkan dalam menyusun aturan sekolah tentang anti-perundungan.", key: "S", asas: "PARTISIPATIF" },
+                        { q: "Sekolah mengadakan kegiatan budaya antar agama agar saling mengenal.", key: "S", asas: "HARMONIS" },
+                        { q: "Guru menghukum murid dengan cara mempermalukannya di depan lapangan.", key: "TS", asas: "HUMANIS" },
+                        { q: "Murid dari keluarga kurang mampu tidak boleh ikut ekstrakurikuler tertentu.", key: "TS", asas: "NONDISKRIMINATIF" }
+                    ]
+                },
+                h2: {
+                    categories: [
+                        { id: "SPIRITUAL", label: "SPIRITUAL", icon: "moon", color: "purple" },
+                        { id: "FISIK", label: "FISIK", icon: "brick-wall", color: "orange" },
+                        { id: "PSIKOLOGIS", label: "PSIKOLOGIS", icon: "heart", color: "pink" },
+                        { id: "DIGITAL", label: "DIGITAL", icon: "smartphone", color: "blue" }
+                    ],
+                    cards: [
+                        { text: "Terdapat ujaran kebencian di kolom komentar medsos sekolah.", type: "TA", cat: "DIGITAL" },
+                        { text: "Sekolah menyediakan fasilitas ibadah untuk semua agama.", type: "A", cat: "SPIRITUAL" },
+                        { text: "Murid difabel kesulitan naik ke lantai dua karena tak ada jalur miring.", type: "TA", cat: "FISIK" },
+                        { text: "Sekolah merahasiakan identitas murid korban perundungan.", type: "A", cat: "PSIKOLOGIS" },
+                        { text: "Terjadi penyebaran informasi rahasia di WhatsApp kelas.", type: "TA", cat: "DIGITAL" },
+                        { text: "Guru membandingkan nilai murid secara terbuka.", type: "TA", cat: "PSIKOLOGIS" },
+                        { text: "Alat pemadam api ringan (APAR) selalu diperiksa berkala.", type: "A", cat: "FISIK" },
+                        { text: "Sekolah melarang murid merayakan hari besar agamanya.", type: "TA", cat: "SPIRITUAL" }
+                    ]
+                },
+                h3: {
+                    roles: [
+                        { id: "MURID", label: "MURID", icon: "user", color: "blue" },
+                        { id: "GURU", label: "GURU", icon: "graduation-cap", color: "green" },
+                        { id: "KEPSEK", label: "KEPALA SEKOLAH", icon: "building-2", color: "purple" },
+                        { id: "TENDIK", label: "TENDIK", icon: "briefcase", color: "orange" }
+                    ],
+                    q: [
+                        { role: "MURID", problem: "Mengetahui ada grup WA rahasia untuk mengejek murid lain.", solution: "Screenshot bukti dan laporkan diam-diam ke guru BK." },
+                        { role: "GURU", problem: "Murid berprestasi sering mengintimidasi murid yang lambat.", solution: "Berikan teguran tegas dan bimbingan konseling." },
+                        { role: "KEPSEK", problem: "Banyak laporan pemalakan di luar gerbang sekolah.", solution: "Bekerja sama dengan warga sekitar dan polisi lingkungan." },
+                        { role: "TENDIK", problem: "Data pribadi murid tersebar dari ruang tata usaha.", solution: "Memperketat keamanan sistem dan membatasi akses komputer." },
+                        { role: "MURID", problem: "Melihat fasilitas sekolah sengaja dirusak teman.", solution: "Berani menegur dan segera melapor ke wali kelas." },
+                        { role: "GURU", problem: "Ada diskriminasi dalam pemilihan tim lomba olahraga.", solution: "Edukasi kesetaraan dan buat seleksi ulang yang adil." }
+                    ]
+                },
+                h4: {
+                    headers: ["1. Lindungi Korban", "2. Bimbing Pelaku", "3. Pulihkan Lingkungan"],
+                    problems: ["Terjadi cyberbullying parah pada seorang murid", "Tawuran kecil antar kelas karena salah paham", "Ada ucapan merendahkan antar teman di lorong"],
+                    korban: ["Berikan pendampingan psikologis (konseling)", "Pisahkan dari pihak berkonflik agar merasa aman", "Dengarkan laporannya tanpa menghakimi"],
+                    pelaku: ["Lakukan restitusi dan pemahaman konsekuensi", "Panggil orang tua untuk pembinaan bersama", "Beri sanksi edukatif dan teguran tertulis"],
+                    lingkungan: ["Gelar kampanye literasi digital sehat", "Adakan kolaborasi antar kelas untuk sosialisasi", "Tegaskan ulang aturan dilarang merendahkan"]
+                }
+            }
+        };
+
+        const decoySolutions = [ "Pura-pura tidak lihat saja biar aman.", "Menghukum fisik di depan kelas.", "Menutup mata agar tidak ikut campur.", "Memarahi semua murid yang ada di sana." ];
+
+        const instructions = {
+            1: { icon: "clipboard-list" },
+            2: { icon: "shield" },
+            3: { icon: "users" },
+            4: { icon: "sprout" }
+        };
+
+        let state = {
+            screen: 'intro', 
+            difficulty: 'rendah', // Default
+            currentLevel: 1, 
+            players: [], 
+            activePlayerIdx: 0,
+            
+            playerProgress: {},
+            availableH1: [],
+            availableH2: [],
+            h1CurrentQ: null,
+            h2CurrentCard: null,
+            h3CurrentQ: null,
+            h4Selections: { k: null, p: null, l: null, problemIdx: 0 },
+            usedH3: new Set(),
+            usedH4: new Set()
+        };
+
+        const screens = {
+            intro: document.getElementById('scene-intro'),
+            difficulty: document.getElementById('scene-difficulty'),
+            playerCount: document.getElementById('scene-player-count'),
+            charSelect: document.getElementById('scene-char-select'), 
+            map: document.getElementById('scene-map'),
+            halte1: document.getElementById('scene-halte1'),
+            halte2: document.getElementById('scene-halte2'),
+            halte3: document.getElementById('scene-halte3'),
+            halte4: document.getElementById('scene-halte4'),
+            finish: document.getElementById('scene-finish')
+        };
+        const scoreDisplay = document.getElementById('score-display');
+        const stageText = document.getElementById('current-stage-text');
+
+        lucide.createIcons();
+
+        // Populate Character Grid
+        const avatarGrid = document.getElementById('avatar-grid');
+        avatars.forEach(char => {
+            const btn = document.createElement('button');
+            btn.className = "avatar-card bg-slate-100 p-2 rounded-xl border-2 border-slate-300 flex flex-col items-center cursor-pointer hover:bg-white transition-all";
+            btn.setAttribute('data-name', char.name); 
+            btn.onclick = () => selectAvatar(char);
+            btn.innerHTML = `
+                <div class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white mb-2 overflow-hidden border-2 border-slate-200 shadow-sm">
+                    <img src="${char.img}" alt="${char.name}" class="w-full h-full object-cover object-top">
+                </div>
+                <span class="font-bold text-slate-600 text-sm">${char.name}</span>
+            `;
+            avatarGrid.appendChild(btn);
+        });
+
+        // --- SCOREBOARD ---
+        function toggleScoreboard() {
+            const sb = document.getElementById('scoreboard-widget');
+            sb.classList.toggle('hidden');
+            document.getElementById('score-badge').classList.add('hidden'); 
+            updateScoreboard();
+        }
+
+        function updateScoreboard() {
+            const list = document.getElementById('scoreboard-list');
+            list.innerHTML = '';
+            const sorted = [...state.players].sort((a,b) => b.score - a.score);
+            
+            sorted.forEach((p, i) => {
+                const isActive = (state.players[state.activePlayerIdx] && p.name === state.players[state.activePlayerIdx].name);
+                const row = document.createElement('div');
+                row.className = `flex items-center justify-between p-2 rounded-lg score-row ${isActive ? 'active' : 'hover:bg-slate-100'}`;
+                row.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-slate-400 w-4">${i+1}.</span>
+                        <img src="${p.avatar.img}" class="w-6 h-6 rounded-full bg-slate-200">
+                        <span class="text-sm font-semibold text-slate-700 ${isActive ? 'text-blue-700' : ''}">${p.name} ${isActive ? '<span class="text-xs bg-blue-100 text-blue-600 px-1 rounded ml-1">Main</span>' : ''}</span>
+                    </div>
+                    <span class="font-bold text-slate-800">${p.score}</span>
+                `;
+                list.appendChild(row);
+            });
+        }
+
+        // --- NAVIGATION & FLOW ---
+
+        function goToDifficulty() {
+            playSound('click');
+            if(bgm.paused) { toggleAudio(); }
+            switchScreen('difficulty');
+        }
+
+        function selectDifficulty(diff) {
+            playSound('click');
+            state.difficulty = diff;
+            switchScreen('playerCount');
+        }
+
+        let targetPlayerCount = 1;
+        function selectPlayerCount(n) {
+            playSound('click');
+            targetPlayerCount = n;
+            state.players = [];
+            setupCharSelect();
+            switchScreen('charSelect');
+        }
+
+        function setupCharSelect() {
+            document.getElementById('char-select-title').innerText = `Pemain ${state.players.length + 1}: Pilih Karaktermu`;
+            
+            const buttons = document.querySelectorAll('.avatar-card');
+            buttons.forEach(btn => {
+                const charName = btn.getAttribute('data-name');
+                const isTaken = state.players.some(p => p.name === charName);
+                if (isTaken) {
+                    btn.classList.add('taken');
+                    btn.classList.remove('selected');
+                } else {
+                    btn.classList.remove('taken', 'selected');
+                }
+            });
+        }
+
+        function selectAvatar(char) {
+            playSound('click');
+            if (state.players.some(p => p.name === char.name)) return;
+
+            state.players.push({
+                id: state.players.length,
+                name: char.name,
+                avatar: char,
+                score: 0
+            });
+
+            if (state.players.length < targetPlayerCount) {
+                setupCharSelect();
+            } else {
+                state.currentLevel = 1;
+                state.activePlayerIdx = 0;
+                
+                state.players.forEach(p => {
+                    state.playerProgress[p.id] = { h1Turns: 0, h2Turns: 0, h3Turns: 0, h4Turns: 0 };
+                });
+
+                // Set Map Labels dynamically
+                for(let i=1; i<=4; i++) {
+                    document.getElementById(`map-label-${i}`).innerText = gameData[state.difficulty].mapLabels[i-1];
+                }
+
+                updateHUD();
+                switchScreen('map');
+            }
+        }
+
+        function updateHUD() {
+            if(!state.players.length) return;
+            const p = state.players[state.activePlayerIdx];
+            if(p) {
+                const avatarEl = document.getElementById('header-avatar');
+                const nameEl = document.getElementById('header-name');
+                const scoreEl = document.getElementById('score-display');
+                const infoEl = document.getElementById('player-info');
+                const turnBadge = document.getElementById('turn-counter-badge');
+                
+                if(avatarEl) avatarEl.src = p.avatar.img;
+                if(nameEl) nameEl.innerText = p.name;
+                if(scoreEl) scoreEl.innerText = p.score;
+                if(infoEl) infoEl.classList.remove('hidden');
+                
+                if(turnBadge) {
+                    let currentTurns = 0;
+                    if(state.currentLevel === 1) currentTurns = state.playerProgress[p.id].h1Turns;
+                    else if(state.currentLevel === 2) currentTurns = state.playerProgress[p.id].h2Turns;
+                    else if(state.currentLevel === 3) currentTurns = state.playerProgress[p.id].h3Turns;
+                    else if(state.currentLevel === 4) currentTurns = state.playerProgress[p.id].h4Turns;
+                    
+                    turnBadge.innerText = `${Math.min(currentTurns + 1, 3)}/3`;
+                }
+                
+                updateScoreboard();
+            }
+        }
+
+        function addScore(points) {
+            const p = state.players[state.activePlayerIdx];
+            p.score += points;
+            const scoreEl = document.getElementById('score-display');
+            if(scoreEl) scoreEl.innerText = p.score;
+            document.getElementById('score-badge').classList.remove('hidden'); 
+            updateScoreboard();
+        }
+
+        function switchScreen(screenName) {
+            Object.values(screens).forEach(el => { if(el) el.classList.add('hidden'); });
+            if(screens[screenName]) screens[screenName].classList.remove('hidden');
+            state.screen = screenName;
+            
+            if(screenName === 'map') {
+                updateHUD();
+                renderMap();
+                stageText.innerText = "Peta Perjalanan";
+            } else if(screenName === 'finish') {
+                renderFinish();
+            } else if (screenName.startsWith('halte')) {
+                updateHUD();
+                const hNum = parseInt(screenName.replace('halte', ''));
+                stageText.innerText = `HALTE ${hNum}`;
+                
+                if(hNum === 1 && state.availableH1.length === 0) {
+                    state.availableH1 = gameData[state.difficulty].h1.q.map((_, i) => i);
+                }
+                if(hNum === 2 && state.availableH2.length === 0) {
+                    state.availableH2 = gameData[state.difficulty].h2.cards.map((_, i) => i);
+                }
+
+                if(hNum === 1) setupHalte1();
+                if(hNum === 2) setupHalte2();
+                if(hNum === 3) setupHalte3();
+                if(hNum === 4) setupHalte4();
+                showInstruction(hNum);
+            }
+            lucide.createIcons();
+        }
+
+        function showModal(correct, title, msg, callback) {
+            const modal = document.getElementById('modal-feedback');
+            const icon = document.getElementById('modal-icon');
+            const tit = document.getElementById('modal-title');
+            const mes = document.getElementById('modal-message');
+            
+            modal.classList.remove('hidden');
+            
+            if(title.includes("Ganti Giliran")) {
+                 icon.innerHTML = `<div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce"><i data-lucide="arrow-right" class="w-10 h-10 text-blue-600"></i></div>`;
+                 tit.innerText = title;
+                 tit.className = "text-3xl font-display mb-2 text-blue-600";
+            } else if(title.includes("Level Selesai")) {
+                 playSound('win');
+                 icon.innerHTML = `<div class="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce"><i data-lucide="star" class="w-10 h-10 text-yellow-600"></i></div>`;
+                 tit.innerText = title;
+                 tit.className = "text-3xl font-display mb-2 text-yellow-600";
+            } else if(correct) {
+                playSound('correct');
+                icon.innerHTML = `<i data-lucide="check-circle" class="w-20 h-20 text-green-500 mx-auto mb-4"></i>`;
+                tit.innerText = "BENAR!"; tit.className = "text-4xl font-display mb-2 text-green-600";
+            } else if (title === "Poin") { 
+                playSound('correct');
+                icon.innerHTML = `<i data-lucide="star" class="w-20 h-20 text-yellow-500 mx-auto mb-4"></i>`;
+                tit.innerText = "POIN DIPEROLEH"; tit.className = "text-4xl font-display mb-2 text-yellow-600";
+            } else {
+                playSound('wrong');
+                icon.innerHTML = `<i data-lucide="x-circle" class="w-20 h-20 text-red-500 mx-auto mb-4"></i>`;
+                tit.innerText = "KURANG TEPAT"; tit.className = "text-4xl font-display mb-2 text-red-600";
+            }
+
+            mes.innerHTML = msg; 
+            lucide.createIcons();
+            window.closeModal = () => { modal.classList.add('hidden'); if(callback) callback(); };
+        }
+
+        function showInstruction(level) {
+            const data = instructions[level];
+            if(!data) return;
+            
+            // Dynamic text based on difficulty
+            const isRendah = state.difficulty === 'rendah';
+            let text = "";
+            let title = `HALTE ${level}: ` + gameData[state.difficulty].mapLabels[level-1];
+            
+            if(level === 1) text = `Baca cerita di layar. Tentukan apakah itu <strong>SESUAI/TIDAK SESUAI</strong>, lalu pilih <strong>${isRendah ? 'SIKAP BAIK' : 'ASAS'}</strong> yang benar.`;
+            if(level === 2) text = `Tentukan cerita ini masuk ke <strong>Ruang</strong> yang mana, lalu pilih <strong>Aman/Tidak Aman</strong>.`;
+            if(level === 3) text = `Pilih peranmu. Selesaikan masalah dengan kartu <strong>AKSI</strong> yang paling baik.`;
+            if(level === 4) text = `Susun 3 langkah kebaikan: <strong>${gameData[state.difficulty].h4.headers.join(', ')}</strong>.`;
+
+            document.getElementById('instr-title').innerText = title;
+            document.getElementById('instr-text').innerHTML = text;
+            document.getElementById('instr-icon').innerHTML = `<i data-lucide="${data.icon}" class="w-12 h-12 text-yellow-600"></i>`;
+            lucide.createIcons();
+            document.getElementById('modal-instruction').classList.remove('hidden');
+        }
+
+        function closeInstruction() { playSound('click'); document.getElementById('modal-instruction').classList.add('hidden'); }
+        function toggleMenu() { playSound('click'); document.getElementById('modal-menu').classList.toggle('hidden'); lucide.createIcons(); }
+        
+        const materiData = {
+            rendah: `
+                <div class="text-center mb-6 border-b-2 border-slate-200 pb-4">
+                    <h2 class="text-xl md:text-2xl font-bold text-indigo-800 uppercase">Sekolahku yang Damai</h2>
+                </div>
+                <div class="mb-6 bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <h4 class="font-bold text-lg text-indigo-700 mb-2">1. Apa itu Sekolah Aman?</h4>
+                    <p class="text-sm text-slate-700 mb-2">Sekolah Aman adalah tempat di mana kita bisa:</p>
+                    <ul class="list-disc list-inside text-sm text-slate-700 ml-2">
+                        <li>Bebas dari pukulan dan ejekan</li>
+                        <li>Belajar dengan senang dan tenang</li>
+                    </ul>
+                </div>
+                <div class="mb-6">
+                    <h4 class="font-bold text-lg text-indigo-700 mb-3">2. Empat Tempat Penting</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-blue-50 p-4 rounded-xl border-l-4 border-blue-500">
+                            <h5 class="font-bold text-blue-800 text-sm">1. Agama/Ibadah</h5>
+                            <p class="text-xs text-slate-700">Rukun walau beda agama, rajin berdoa.</p>
+                        </div>
+                        <div class="bg-orange-50 p-4 rounded-xl border-l-4 border-orange-500">
+                            <h5 class="font-bold text-orange-800 text-sm">2. Fisik/Bangunan</h5>
+                            <p class="text-xs text-slate-700">Kelas tidak rusak, bersih, dan aman.</p>
+                        </div>
+                        <div class="bg-pink-50 p-4 rounded-xl border-l-4 border-pink-500">
+                            <h5 class="font-bold text-pink-800 text-sm">3. Hati (Perasaan)</h5>
+                            <p class="text-xs text-slate-700">Semua diajak main, tidak ada yang menangis.</p>
+                        </div>
+                        <div class="bg-purple-50 p-4 rounded-xl border-l-4 border-purple-500">
+                            <h5 class="font-bold text-purple-800 text-sm">4. HP/Internet</h5>
+                            <p class="text-xs text-slate-700">Tidak mengejek lewat HP, nonton video baik.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-6 bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <h4 class="font-bold text-lg text-indigo-700 mb-3">3. Sikap Baik Kita</h4>
+                    <ul class="list-disc list-inside text-sm text-slate-700 space-y-1">
+                        <li><strong>Kasih Sayang:</strong> Sayang kepada semua teman.</li>
+                        <li><strong>Kerja Sama:</strong> Gotong royong bersih-bersih kelas.</li>
+                        <li><strong>Adil:</strong> Bermain sama siapa saja tanpa pilih-pilih.</li>
+                        <li><strong>Tanggung Jawab:</strong> Berani lapor guru kalau ada masalah.</li>
+                    </ul>
+                </div>
+                <div class="bg-yellow-50 p-4 rounded-xl text-center font-bold text-indigo-800 italic">"Sekolah yang aman bikin kita pintar dan senang!"</div>
+            `,
+            tinggi: `
+                <div class="text-center mb-6 border-b-2 border-slate-200 pb-4">
+                    <h2 class="text-xl md:text-2xl font-bold text-indigo-800 uppercase">Budaya Sekolah Aman & Nyaman</h2>
+                    <p class="text-sm text-slate-500">(Permendikdasmen No. 6 Tahun 2026)</p>
+                </div>
+                <div class="mb-6 bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <h4 class="font-bold text-lg text-indigo-700 mb-2">1. Pengertian Singkat</h4>
+                    <p class="text-sm text-slate-700">Mewujudkan lingkungan belajar yang bebas kekerasan, inklusif, dan aman secara fisik, psikologis, sosial, maupun digital.</p>
+                </div>
+                <div class="mb-6">
+                    <h4 class="font-bold text-lg text-indigo-700 mb-3">2. Empat Pilar (Ruang Aman)</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div class="bg-blue-50 p-3 rounded-lg border-l-4 border-blue-500"><strong>Spiritual:</strong> Kerukunan agama & kebebasan ibadah.</div>
+                        <div class="bg-orange-50 p-3 rounded-lg border-l-4 border-orange-500"><strong>Fisik:</strong> Keselamatan bangunan & akses disabilitas.</div>
+                        <div class="bg-pink-50 p-3 rounded-lg border-l-4 border-pink-500"><strong>Psikologis:</strong> Anti-perundungan & dukungan mental.</div>
+                        <div class="bg-purple-50 p-3 rounded-lg border-l-4 border-purple-500"><strong>Digital:</strong> Literasi digital & perlindungan privasi.</div>
+                    </div>
+                </div>
+                <div class="mb-6 bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <h4 class="font-bold text-lg text-indigo-700 mb-3">3. Asas Utama</h4>
+                    <ul class="grid grid-cols-2 gap-2 text-xs text-slate-700">
+                        <li>✔️ <strong>Humanis:</strong> Tanpa kekerasan</li>
+                        <li>✔️ <strong>Inklusif:</strong> Setara untuk semua</li>
+                        <li>✔️ <strong>Partisipatif:</strong> Murid dilibatkan</li>
+                        <li>✔️ <strong>Nondiskriminatif:</strong> Tidak membedakan</li>
+                        <li>✔️ <strong>Harmonis:</strong> Saling menghormati</li>
+                    </ul>
+                </div>
+                <div class="bg-yellow-50 p-4 rounded-xl text-center text-sm font-bold text-indigo-800">"Menjaga sekolah agar aman adalah tugas semua warga sekolah: Kepala Sekolah, Guru, Tendik, dan Murid!"</div>
+            `
+        };
+
+        function showMateri() {
+            playSound('click');
+            const curDiff = state.difficulty || 'rendah';
+            document.getElementById('materi-content-container').innerHTML = materiData[curDiff];
+            document.getElementById('modal-materi').classList.remove('hidden');
+            lucide.createIcons();
+        }
+        function closeMateri() {
+            playSound('click');
+            document.getElementById('modal-materi').classList.add('hidden');
+        }
+
+        function menuAction(action) {
+            toggleMenu(); 
+            if(action === 'home') location.reload();
+            else if(action === 'map') { if(state.screen !== 'intro' && state.screen !== 'difficulty') switchScreen('map'); }
+            else if(action === 'materi') showMateri();
+        }
+
+        function enterLevel(level) {
+            if(level <= state.currentLevel) { playSound('click'); switchScreen(`halte${level}`); } else { playSound('wrong'); }
+        }
+
+        function renderMap() {
+            const currentPlayer = state.players[state.activePlayerIdx];
+            document.getElementById('map-status-text').innerText = `Giliran ${currentPlayer.name} masuk ke Halte ${state.currentLevel}...`;
+            
+            for(let i=1; i<=4; i++) {
+                const btn = document.getElementById(`btn-map-${i}`);
+                const bus = document.getElementById(`bus-pos-${i}`);
+                btn.disabled = true; btn.classList.remove('btn-map-active'); bus.classList.add('hidden');
+                
+                if (i < state.currentLevel) {
+                    btn.disabled = false;
+                    btn.querySelector('div div').classList.remove('bg-red-500', 'bg-blue-500', 'bg-orange-500', 'bg-green-500');
+                    btn.querySelector('div div').classList.add('bg-green-600');
+                } else if (i === state.currentLevel) {
+                    btn.disabled = false; btn.classList.add('btn-map-active'); bus.classList.remove('hidden');
+                }
+            }
+        }
+
+        // --- NEW TURN LOGIC (3 TURNS PER PLAYER) ---
+        function getUniqueRandomIndex(max, usedArray) {
+            if (usedArray.length === 0) {
+                for(let i=0; i<max; i++) usedArray.push(i);
+            }
+            const randomIndex = Math.floor(Math.random() * usedArray.length);
+            const val = usedArray[randomIndex];
+            usedArray.splice(randomIndex, 1);
+            return val;
+        }
+
+        function nextTurn() {
+            const currentP = state.players[state.activePlayerIdx];
+            const pId = currentP.id;
+            
+            let turnsTaken = 0;
+            if(state.currentLevel === 1) { state.playerProgress[pId].h1Turns++; turnsTaken = state.playerProgress[pId].h1Turns; }
+            else if(state.currentLevel === 2) { state.playerProgress[pId].h2Turns++; turnsTaken = state.playerProgress[pId].h2Turns; }
+            else if(state.currentLevel === 3) { state.playerProgress[pId].h3Turns++; turnsTaken = state.playerProgress[pId].h3Turns; }
+            else if(state.currentLevel === 4) { state.playerProgress[pId].h4Turns++; turnsTaken = state.playerProgress[pId].h4Turns; }
+
+            // Check if ALL players have finished 3 turns at this level
+            let allDone = true;
+            state.players.forEach(p => {
+                let t = 0;
+                if(state.currentLevel === 1) t = state.playerProgress[p.id].h1Turns;
+                else if(state.currentLevel === 2) t = state.playerProgress[p.id].h2Turns;
+                else if(state.currentLevel === 3) t = state.playerProgress[p.id].h3Turns;
+                else if(state.currentLevel === 4) t = state.playerProgress[p.id].h4Turns;
+                if(t < 3) allDone = false;
+            });
+
+            if (allDone) {
+                if (state.currentLevel < 4) {
+                    state.currentLevel++;
+                    state.activePlayerIdx = 0; 
+                    showModal(true, "Level Selesai!", "Hebat! Semua tantangan selesai. Halte berikutnya terbuka.", () => {
+                        switchScreen('map');
+                    });
+                } else {
+                    switchScreen('finish');
+                }
+            } else {
+                let nextIdx = (state.activePlayerIdx + 1) % state.players.length;
+                let loops = 0;
+                while(loops < state.players.length) {
+                    const checkP = state.players[nextIdx];
+                    let t = 0;
+                    if(state.currentLevel === 1) t = state.playerProgress[checkP.id].h1Turns;
+                    else if(state.currentLevel === 2) t = state.playerProgress[checkP.id].h2Turns;
+                    else if(state.currentLevel === 3) t = state.playerProgress[checkP.id].h3Turns;
+                    else if(state.currentLevel === 4) t = state.playerProgress[checkP.id].h4Turns;
+                    
+                    if(t < 3) {
+                        state.activePlayerIdx = nextIdx;
+                        break;
+                    }
+                    nextIdx = (nextIdx + 1) % state.players.length;
+                    loops++;
+                }
+
+                const nextP = state.players[state.activePlayerIdx];
+                showModal(true, "Ganti Giliran", `Sekarang giliran ${nextP.name}!`, () => {
+                    updateHUD();
+                    refreshCurrentLevel();
+                });
+            }
+        }
+
+        function refreshCurrentLevel() {
+            if(state.currentLevel === 1) loadH1Question();
+            else if(state.currentLevel === 2) loadH2Card();
+            else if(state.currentLevel === 3) setupHalte3(); 
+            else if(state.currentLevel === 4) loadH4Problem();
+        }
+
+        // --- HALTE 1 LOGIC ---
+        function setupHalte1() { loadH1Question(); }
+        
+        function loadH1Question() {
+            const dataH1 = gameData[state.difficulty].h1;
+            const idx = getUniqueRandomIndex(dataH1.q.length, state.availableH1);
+            state.h1CurrentQ = dataH1.q[idx];
+            
+            document.getElementById('h1-step1').classList.remove('hidden');
+            document.getElementById('h1-step2').classList.add('hidden');
+            document.getElementById('h1-question-text').innerText = state.h1CurrentQ.q;
+            
+            const asasContainer = document.getElementById('h1-asas-grid');
+            asasContainer.innerHTML = '';
+            
+            const asasPool = dataH1.asasPool;
+            let options = [state.h1CurrentQ.asas];
+            while(options.length < 3) {
+                const r = asasPool[Math.floor(Math.random() * asasPool.length)];
+                if(!options.includes(r)) options.push(r);
+            }
+            options.sort(() => Math.random() - 0.5);
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "bg-white border-2 border-slate-300 py-3 md:py-4 rounded-xl font-bold text-slate-700 hover:bg-blue-50 active:scale-95 shadow-sm text-sm md:text-base";
+                btn.innerText = opt;
+                btn.onclick = () => handleH1Step2(opt);
+                asasContainer.appendChild(btn);
+            });
+        }
+        function handleH1Step1(choice) {
+            if(choice === state.h1CurrentQ.key) {
+                playSound('click'); addScore(5);
+                document.getElementById('h1-step1').classList.add('hidden');
+                document.getElementById('h1-step2').classList.remove('hidden');
+            } else { 
+                showModal(false, "Ops!", "Analisis situasi dengan lebih teliti ya!"); 
+            }
+        }
+        function handleH1Step2(choice) {
+            if(choice === state.h1CurrentQ.asas) {
+                addScore(10);
+                showModal(true, "Hebat!", `Ini tepat dengan label ${choice}`, () => { nextTurn(); });
+            } else { 
+                showModal(false, "Kurang Tepat", `Jawaban yang paling tepat adalah ${state.h1CurrentQ.asas}`, () => { nextTurn(); }); 
+            }
+        }
+
+        // --- HALTE 2 LOGIC ---
+        function setupHalte2() {
+            const cats = gameData[state.difficulty].h2.categories;
+            const grid = document.getElementById('h2-category-grid');
+            grid.innerHTML = '';
+            cats.forEach(c => {
+                grid.innerHTML += `
+                    <button onclick="handleH2Room('${c.id}')" class="btn-game bg-${c.color}-100 border-4 border-${c.color}-400 p-4 md:p-6 rounded-2xl flex flex-col items-center hover:bg-${c.color}-200 hover:scale-105">
+                        <i data-lucide="${c.icon}" class="w-10 h-10 md:w-12 md:h-12 text-${c.color}-600 mb-2"></i>
+                        <span class="font-bold text-${c.color}-800 text-sm md:text-base">${c.label}</span>
+                    </button>`;
+            });
+            lucide.createIcons();
+            loadH2Card(); 
+        }
+        
+        function loadH2Card() {
+            const dataH2 = gameData[state.difficulty].h2.cards;
+            const idx = getUniqueRandomIndex(dataH2.length, state.availableH2);
+            state.h2CurrentCard = dataH2[idx];
+            
+            document.getElementById('h2-card-text').innerText = state.h2CurrentCard.text;
+            document.getElementById('h2-step1').classList.remove('hidden');
+            document.getElementById('h2-step2').classList.add('hidden');
+        }
+        function handleH2Room(selectedRoom) {
+            if(selectedRoom === state.h2CurrentCard.cat) {
+                playSound('click'); addScore(5);
+                document.getElementById('h2-step1').classList.add('hidden');
+                document.getElementById('h2-step2').classList.remove('hidden');
+            } else { showModal(false, "Kurang Tepat", "Coba pikirkan lagi, masuk ke kategori ruang mana situasi ini?"); }
+        }
+        function handleH2Safety(selectedSafety) {
+            if(selectedSafety === state.h2CurrentCard.type) {
+                addScore(10);
+                showModal(true, "Benar!", "Analisis keamananmu tepat.", () => { nextTurn(); });
+            } else { 
+                showModal(false, "Kurang Tepat", "Perhatikan dampak situasi tersebut terhadap murid.", () => { nextTurn(); }); 
+            }
+        }
+
+        // --- HALTE 3 LOGIC ---
+        function setupHalte3() {
+            const roles = gameData[state.difficulty].h3.roles;
+            const grid = document.getElementById('h3-role-grid');
+            grid.innerHTML = '';
+            roles.forEach(r => {
+                grid.innerHTML += `
+                    <button onclick="startRoleplay('${r.id}')" class="btn-game glass-card p-6 flex flex-col items-center hover:bg-${r.color}-50 transition-transform hover:-translate-y-2 !border-b-8 !border-${r.color}-500">
+                        <i data-lucide="${r.icon}" class="w-12 h-12 md:w-16 md:h-16 text-${r.color}-500 mb-4"></i>
+                        <span class="block text-lg md:text-xl font-bold text-slate-700 text-center">${r.label}</span>
+                    </button>`;
+            });
+            lucide.createIcons();
+            
+            document.getElementById('h3-role-select').classList.remove('hidden');
+            document.getElementById('h3-gameplay').classList.add('hidden');
+        }
+        function startRoleplay(role) {
+            playSound('click');
+            document.getElementById('h3-role-select').classList.add('hidden');
+            document.getElementById('h3-gameplay').classList.remove('hidden');
+            
+            const possibleQs = gameData[state.difficulty].h3.q.filter(d => d.role === role);
+            
+            let validQs = possibleQs.filter(q => !state.usedH3.has(role + "-" + q.problem));
+            if(validQs.length === 0) validQs = possibleQs;
+            
+            state.h3CurrentQ = validQs[Math.floor(Math.random() * validQs.length)];
+            state.usedH3.add(role + "-" + state.h3CurrentQ.problem);
+            
+            loadH3Question();
+        }
+        function loadH3Question() {
+            const q = state.h3CurrentQ;
+            document.getElementById('h3-problem-text').innerText = q.problem;
+            
+            const opts = document.getElementById('h3-options-grid');
+            opts.innerHTML = '';
+            
+            let choices = [q.solution];
+            while(choices.length < 4) {
+                const d = decoySolutions[Math.floor(Math.random() * decoySolutions.length)];
+                if(!choices.includes(d)) choices.push(d);
+            }
+            choices.sort(() => Math.random() - 0.5);
+
+            choices.forEach(c => {
+                const btn = document.createElement('button');
+                btn.className = "bg-white border-2 border-slate-200 p-4 rounded-xl text-left hover:border-blue-400 font-medium text-slate-700 shadow-sm";
+                btn.innerText = c;
+                btn.onclick = () => {
+                    if(c === q.solution) {
+                        addScore(20);
+                        showModal(true, "Luar Biasa!", "Aksi yang tepat!", () => { nextTurn(); });
+                    } else {
+                        playSound('wrong');
+                        showModal(false, "Coba Lagi", "Pikirkan dampak jangka panjangnya.", () => { nextTurn(); });
+                    }
+                };
+                opts.appendChild(btn);
+            });
+        }
+
+        // --- HALTE 4 LOGIC ---
+        function setupHalte4() {
+            const hdrs = gameData[state.difficulty].h4.headers;
+            document.getElementById('h4-header-k').innerText = hdrs[0];
+            document.getElementById('h4-header-p').innerText = hdrs[1];
+            document.getElementById('h4-header-l').innerText = hdrs[2];
+            
+            state.h4Selections = { k: null, p: null, l: null, problemIdx: 0 };
+            loadH4Problem();
+        }
+        function loadH4Problem() {
+            const dataH4 = gameData[state.difficulty].h4;
+            let availableIdx = [];
+            for(let i=0; i<dataH4.problems.length; i++) {
+                if(!state.usedH4.has(i)) availableIdx.push(i);
+            }
+            if(availableIdx.length === 0) {
+                state.usedH4.clear();
+                for(let i=0; i<dataH4.problems.length; i++) availableIdx.push(i);
+            }
+            
+            const idx = availableIdx[Math.floor(Math.random() * availableIdx.length)];
+            state.usedH4.add(idx);
+            state.h4Selections.problemIdx = idx;
+            state.h4Selections.k = null; state.h4Selections.p = null; state.h4Selections.l = null;
+            
+            document.getElementById('h4-problem-text').innerText = dataH4.problems[idx];
+            document.getElementById('h4-counter').innerText = `?`; 
+            
+            populateList('h4-list-korban', dataH4.korban, 'k');
+            populateList('h4-list-pelaku', dataH4.pelaku, 'p');
+            populateList('h4-list-lingkungan', dataH4.lingkungan, 'l');
+            
+            ['korban', 'pelaku', 'lingkungan'].forEach(k => {
+                const slot = document.getElementById(`slot-${k}`);
+                slot.innerText = "Pilih tindakan di atas";
+                slot.className = "mt-auto p-3 bg-white/50 border-2 border-dashed border-slate-300 rounded-xl min-h-[50px] flex items-center justify-center text-slate-500 text-xs md:text-sm text-center font-medium";
+            });
+        }
+        function populateList(elementId, itemsArray, typeKey) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+            let items = itemsArray.map((txt, i) => ({ text: txt, idx: i }));
+            items.sort(() => Math.random() - 0.5);
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "p-3 bg-white rounded shadow-sm border border-slate-100 cursor-pointer hover:bg-slate-50 text-sm";
+                div.innerText = item.text;
+                div.onclick = () => selectH4Item(typeKey, item.text, item.idx, elementId);
+                container.appendChild(div);
+            });
+        }
+        function selectH4Item(typeKey, text, idx, listId) {
+            playSound('click');
+            state.h4Selections[typeKey] = idx; 
+            let slotId = '', color = '';
+            if(typeKey === 'k') { slotId = 'slot-korban'; color = 'blue'; }
+            if(typeKey === 'p') { slotId = 'slot-pelaku'; color = 'orange'; }
+            if(typeKey === 'l') { slotId = 'slot-lingkungan'; color = 'green'; }
+            const slot = document.getElementById(slotId);
+            slot.className = `mt-auto p-3 bg-${color}-100 border-2 border-${color}-500 rounded-xl min-h-[50px] flex items-center justify-center text-${color}-800 font-bold shadow-sm text-xs md:text-sm text-center`;
+            slot.innerText = text;
+        }
+        
+        function checkH4Answer() {
+            const { k, p, l, problemIdx } = state.h4Selections;
+            if(k === null || p === null || l === null) { 
+                showModal(false, "Belum Lengkap", "Isi semua 3 langkah penyelesaian dulu ya!"); 
+                return; 
+            }
+            
+            let correctCount = 0;
+            if (k === problemIdx) correctCount++;
+            if (p === problemIdx) correctCount++;
+            if (l === problemIdx) correctCount++;
+            
+            let points = 0;
+            if (correctCount === 1) points = 5;
+            else if (correctCount === 2) points = 10;
+            else if (correctCount === 3) points = 15;
+            
+            const dataH4 = gameData[state.difficulty].h4;
+            let msg = `<div class="text-left space-y-2">`;
+            msg += `<p class="font-bold text-center mb-2">Kamu benar ${correctCount} dari 3 langkah!</p>`;
+            msg += `<div class="bg-blue-50 p-2 rounded text-xs"><span class="font-bold text-blue-700">${dataH4.headers[0]}:</span> ${dataH4.korban[problemIdx]}</div>`;
+            msg += `<div class="bg-orange-50 p-2 rounded text-xs"><span class="font-bold text-orange-700">${dataH4.headers[1]}:</span> ${dataH4.pelaku[problemIdx]}</div>`;
+            msg += `<div class="bg-green-50 p-2 rounded text-xs"><span class="font-bold text-green-700">${dataH4.headers[2]}:</span> ${dataH4.lingkungan[problemIdx]}</div>`;
+            msg += `</div>`;
+
+            if (points > 0) {
+                addScore(points);
+                showModal(true, "Poin", msg, () => { nextTurn(); });
+            } else {
+                showModal(false, "Kurang Tepat", msg, () => { nextTurn(); });
+            }
+        }
+
+        // --- FINISH ---
+        function renderFinish() {
+            stageText.innerText = "SELESAI";
+            playSound('win');
+
+            const sortedPlayers = [...state.players].sort((a, b) => b.score - a.score);
+            const winner = sortedPlayers[0];
+
+            document.getElementById('winner-name').innerText = winner.name;
+            
+            const lbContainer = document.getElementById('leaderboard');
+            lbContainer.innerHTML = '';
+
+            sortedPlayers.forEach((p, idx) => {
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between bg-white p-4 rounded-xl shadow-md border-l-8 " + (idx === 0 ? "border-yellow-400" : "border-slate-300");
+                row.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="font-bold text-xl md:text-2xl w-8 text-center text-slate-400">#${idx + 1}</div>
+                        <img src="${p.avatar.img}" class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-slate-100 object-cover">
+                        <div class="font-bold text-base md:text-lg text-slate-800">${p.name} ${idx===0 ? '👑' : ''}</div>
+                    </div>
+                    <div class="font-display text-xl md:text-2xl text-indigo-600">${p.score}</div>
+                `;
+                lbContainer.appendChild(row);
+            });
+        }
+    </script>
+</body>
+</html>
